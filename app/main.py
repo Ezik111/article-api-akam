@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from typing import List
+from fastapi.openapi.docs import get_redoc_html
 
 from app import models, schemas, security, database
 from app.database import engine, get_db
@@ -13,7 +14,8 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Article Management API",
     description="Secure API for managing articles and users with a notification system",
-    version="1.0.0"
+    version="1.0.0",
+    redoc_url=None
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -160,3 +162,11 @@ def bulk_import_articles(
     db.commit()
     notify_subscribers(db, f"Imported {len(data.articles)} new articles")
     return {"message": f"Successfully imported {len(data.articles)} articles"}
+
+@app.get("/redoc", include_in_schema=False)
+async def redoc_html():
+    return get_redoc_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - ReDoc",
+        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js",
+    )
