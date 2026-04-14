@@ -135,7 +135,7 @@ def update_article(
     db.refresh(db_article)
     return db_article
 
-@app.delete("/articles/{article_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Articles"])
+@app.delete("/articles/{article_id}", status_code=status.HTTP_200_OK, tags=["Articles"])
 def delete_article(
     article_id: int,
     db: Session = Depends(get_db),
@@ -149,6 +149,7 @@ def delete_article(
     
     db.delete(db_article)
     db.commit()
+    return {"message": "Article deleted"}
 
 @app.post("/articles/import", status_code=status.HTTP_201_CREATED, tags=["Articles"])
 def bulk_import_articles(
